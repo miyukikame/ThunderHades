@@ -18,20 +18,9 @@ func prepareDownload(siteUrl string) {
 	rangeHeader := resp.Header.Get("Content-Length")
 	rangeSize, _ = strconv.Atoi(rangeHeader)
 }
-func TestProxy(siteUrl string) {
-	var proxyList = GetProxiesFromUrl("https://api.proxyscrape.com/v2/?request=getproxies&protocol=http&timeout=150&country=all&ssl=yes&anonymity=elite&simplified=true")
-	proxyUrl, _ := url.Parse("https://" + proxyList[1].ip + ":" + proxyList[1].port)
-	rawSiteUrl, _ := url.Parse(siteUrl)
-	transport := &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
-	client := &http.Client{Transport: transport}
-	request, _ := http.NewRequest("GET", rawSiteUrl.String(), nil)
-	response, _ := client.Do(request)
-	htmldata, _ := ioutil.ReadAll(response.Body)
-	fmt.Println(string(htmldata))
-}
 
-// StartDownload /*func StartDownload(siteUrl string, proxy proxy){
-func StartDownload(siteUrl string) {
+// StartDownload /*func StartDownload(siteUrl string, Proxy Proxy){
+func StartDownload(siteUrl string, proxy Proxy) {
 	prepareDownload(siteUrl)
 	partialChunk := rangeSize / 12
 	chunkStart := 0
@@ -39,7 +28,7 @@ func StartDownload(siteUrl string) {
 	outFile := make(chan string)
 	var msg string
 	for i := 0; i < 12; i++ {
-		go DownloadFile(siteUrl, chunkStart, chunkEnd, outFile)
+		go DownloadFile(siteUrl, chunkStart, chunkEnd, proxy, outFile)
 		chunkStart += partialChunk + 1
 		chunkEnd += partialChunk
 		msg += <-outFile
@@ -48,12 +37,14 @@ func StartDownload(siteUrl string) {
 	transformToFile(msg, fileName)
 }
 
-// DownloadFile /*func DownloadFile(siteUrl string, chunkStart int, chunkEnd int, proxy proxy, out chan string){
-func DownloadFile(siteUrl string, chunkStart int, chunkEnd int, out chan string) {
+// DownloadFile /*func DownloadFile(siteUrl string, chunkStart int, chunkEnd int, proxy Proxy, out chan string){
+func DownloadFile(siteUrl string, chunkStart int, chunkEnd int, proxy Proxy, out chan string) {
 	defer close(out)
 	request, _ := http.NewRequest("GET", siteUrl, nil)
 	request.Header.Set("Range", "bytes="+strconv.Itoa(chunkStart)+"-"+strconv.Itoa(chunkEnd))
-	client := &http.Client{}
+	proxyUrl, _ := url.Parse("https://" + proxy.port + ":" + proxy.port)
+	transport := &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
+	client := &http.Client{Transport: transport}
 	response, err := client.Do(request)
 	if response.StatusCode > 350 {
 		fmt.Println(err)

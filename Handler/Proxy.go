@@ -7,14 +7,14 @@ import (
 	"strings"
 )
 
-type proxy struct {
+type Proxy struct {
 	ip   string
 	port string
 }
 
-// GetProxiesFromUrl returns an arraylist with type proxy
-// Provided API needs to have proxy:ip format per line
-func GetProxiesFromUrl(siteUrl string) []proxy {
+// GetProxiesFromUrl returns an arraylist with type Proxy
+// Provided API needs to have Proxy:ip format per line
+func GetProxiesFromUrl(siteUrl string) []Proxy {
 	resp, err := http.Get(siteUrl)
 	if err != nil {
 		fmt.Println(err)
@@ -27,13 +27,13 @@ func GetProxiesFromUrl(siteUrl string) []proxy {
 	return LoadProxies(proxies)
 }
 
-func LoadProxies(proxies []string) []proxy {
-	var proxyListArray []proxy
+func LoadProxies(proxies []string) []Proxy {
+	var proxyListArray []Proxy
 	//proxies = proxies[:len(proxies) - 1]
 	for _, element := range proxies {
 		singleProxy := strings.Split(element, ":")
 		if element != "" {
-			proxyListArray = append(proxyListArray, proxy{
+			proxyListArray = append(proxyListArray, Proxy{
 				ip:   singleProxy[0],
 				port: strings.Trim(singleProxy[1], "\r"),
 			})
@@ -41,8 +41,8 @@ func LoadProxies(proxies []string) []proxy {
 	}
 	return proxyListArray
 }
-func LoadNextProxy(proxyList []proxy, index int) proxy {
-	return proxy{
+func LoadNextProxy(proxyList []Proxy, index int) Proxy {
+	return Proxy{
 		ip:   proxyList[index].ip,
 		port: proxyList[index].port,
 	}
