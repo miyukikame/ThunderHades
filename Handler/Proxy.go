@@ -47,3 +47,22 @@ func LoadNextProxy(proxyList []Proxy, index int) Proxy {
 		port: proxyList[index].port,
 	}
 }
+
+//region getter/setter functions
+func (p *Proxy) GetIp() string {
+	return p.ip
+}
+
+func (p *Proxy) SetIp(ip string) {
+	p.ip = ip
+}
+
+func (p *Proxy) GetPort() string {
+	return p.port
+}
+
+func (p *Proxy) SetPort(port string) {
+	p.port = port
+}
+
+//endregion
